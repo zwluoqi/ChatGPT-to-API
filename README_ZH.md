@@ -7,7 +7,7 @@
     
 ### 设置
 
-配置账户邮箱和密码，自动生成和更新Access tokens 和 PUID（仅PLUS账户）（使用[OpenAIAuth](https://github.com/acheong08/OpenAIAuth/)）
+配置账户邮箱和密码，自动生成和更新Access tokens 和 PUID（仅PLUS账户）（使用[OpenAIAuth](https://github.com/xqdoo00o/OpenAIAuth/)）
 
 `accounts.txt` - 存放OpenAI账号邮箱和密码的文件
 
@@ -47,7 +47,7 @@ sk-123456
 
 ## 开始
 ```  
-git clone https://github.com/acheong08/ChatGPT-to-API
+git clone https://github.com/xqdoo00o/ChatGPT-to-API
 cd ChatGPT-to-API
 go build
 ./freechatgpt
@@ -67,13 +67,13 @@ go build
     socks5://127.0.0.1:9999
     ...
     ```
-  - `access_tokens.json` - 一个存放Access tokens 和PUID JSON数组的文件 (可使用 PATCH请求更新Access tokens [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
+  - `access_tokens.json` - 一个存放Access tokens 和PUID JSON数组的文件 (可使用 PATCH请求更新Access tokens [correct endpoint](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md))
     ```
     [{token:"access_token1", puid:"puid1"}, {token:"access_token2", puid:"puid2"}...]
     ```
 
 ## 用户管理文档
-https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md
+https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md
 
 ## API使用说明
 https://platform.openai.com/docs/api-reference/chat

@@ -11,7 +11,7 @@ Create a fake API using ChatGPT's website
     
 ### Authentication
 
-Access token and PUID(only for PLUS account) retrieval has been automated by [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) with account email & password.
+Access token and PUID(only for PLUS account) retrieval has been automated by [OpenAIAuth](https://github.com/xqdoo00o/OpenAIAuth/) with account email & password.
 
 `accounts.txt` - A list of accounts separated by new line 
 
@@ -50,7 +50,7 @@ sk-123456
 
 ## Getting set up
 ```  
-git clone https://github.com/acheong08/ChatGPT-to-API
+git clone https://github.com/xqdoo00o/ChatGPT-to-API
 cd ChatGPT-to-API
 go build
 ./freechatgpt
@@ -69,13 +69,13 @@ go build
     http://127.0.0.1:8888
     ...
     ```
-  - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md))
+  - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md))
     ```
     [{token:"access_token1", puid:"puid1"}, {token:"access_token2", puid:"puid2"}...]
     ```
 
 ## Admin API docs
-https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md
+https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md
 
 ## API usage docs
 https://platform.openai.com/docs/api-reference/chat

@@ -23,16 +23,11 @@ import (
 )
 
 var (
-	jar     = tls_client.NewCookieJar()
-	options = []tls_client.HttpClientOption{
-		tls_client.WithTimeoutSeconds(360),
+	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), []tls_client.HttpClientOption{
+		tls_client.WithCookieJar(tls_client.NewCookieJar()),
+		tls_client.WithTimeoutSeconds(600),
 		tls_client.WithClientProfile(tls_client.Okhttp4Android13),
-		tls_client.WithNotFollowRedirects(),
-		tls_client.WithCookieJar(jar), // create cookieJar instance and pass it as argument
-		// Disable SSL verification
-		tls_client.WithInsecureSkipVerify(),
-	}
-	client, _         = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
+	}...)
 	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
 
@@ -65,8 +60,8 @@ func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string,
 		request.Header.Set("Cookie", "_puid="+puid+";")
 	}
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")
-	request.Header.Set("Accept", "*/*")
+	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+	request.Header.Set("Accept", "text/event-stream")
 	if access_token != "" {
 		request.Header.Set("Authorization", "Bearer "+access_token)
 	}

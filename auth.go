@@ -11,7 +11,7 @@ import (
 
 	"freechatgpt/internal/tokens"
 
-	"github.com/acheong08/OpenAIAuth/auth"
+	"github.com/xqdoo00o/OpenAIAuth/auth"
 )
 
 var accounts []Account
@@ -109,7 +109,6 @@ func updateToken() {
 			println("Location: " + err.Location)
 			println("Status code: " + fmt.Sprint(err.StatusCode))
 			println("Details: " + err.Details)
-			println("Embedded error: " + err.Error.Error())
 			return
 		}
 		access_token := authenticator.GetAccessToken()

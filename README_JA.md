@@ -12,7 +12,7 @@ ChatGPT のウェブサイトを使って偽 API を作る
 
 ### 認証
 
-アクセストークンの取得は [OpenAIAuth](https://github.com/acheong08/OpenAIAuth/) により、アカウントのメールアドレスとパスワードで自動化されています。
+アクセストークンの取得は [OpenAIAuth](https://github.com/xqdoo00o/OpenAIAuth/) により、アカウントのメールアドレスとパスワードで自動化されています。
 
 `accounts.txt` - 改行で区切られたアカウントのリスト
 
@@ -43,7 +43,7 @@ sk-123456
 
 ## 準備
 ```
-git clone https://github.com/acheong08/ChatGPT-to-API
+git clone https://github.com/xqdoo00o/ChatGPT-to-API
 cd ChatGPT-to-API
 go build
 ./freechatgpt
@@ -63,13 +63,13 @@ go build
     http://127.0.0.1:8888
     ...
     ```
-  - `access_tokens.json` - サイクリング用のアクセストークンの JSON 配列（あるいは、[正しいエンドポイント](https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md)に PATCH リクエストを送る）
+  - `access_tokens.json` - サイクリング用のアクセストークンの JSON 配列（あるいは、[正しいエンドポイント](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md)に PATCH リクエストを送る）
     ```
     ["access_token1", "access_token2"...]
     ```
 
 ## Admin API ドキュメント
-https://github.com/acheong08/ChatGPT-to-API/blob/master/docs/admin.md
+https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md
 
 ## API 使用方法ドキュメント
 https://platform.openai.com/docs/api-reference/chat
