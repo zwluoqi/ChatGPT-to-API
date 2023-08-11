@@ -6,7 +6,7 @@ import (
 	official_types "freechatgpt/typings/official"
 	"strings"
 
-	arkose "github.com/acheong08/funcaptcha"
+	arkose "github.com/xqdoo00o/funcaptcha"
 )
 
 func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy string) chatgpt_types.ChatGPTRequest {

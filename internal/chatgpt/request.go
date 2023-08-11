@@ -10,10 +10,10 @@ import (
 	"os"
 	"strings"
 
-	arkose "github.com/acheong08/funcaptcha"
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/gin-gonic/gin"
+	arkose "github.com/xqdoo00o/funcaptcha"
 
 	chatgpt_response_converter "freechatgpt/conversion/response/chatgpt"
 
@@ -187,18 +187,4 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}
-}
-
-func GETengines() (interface{}, int, error) {
-	url := "https://api.openai.com/v1/models"
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Authorization", "Bearer "+os.Getenv("OFFICIAL_API_KEY"))
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer resp.Body.Close()
-	var result interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
-	return result, resp.StatusCode, nil
 }

@@ -11,30 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func openaiHandler(c *gin.Context) {
-	var authorizations struct {
-		OpenAI_Email     string `json:"openai_email"`
-		OpenAI_Password  string `json:"openai_password"`
-		Official_API_Key string `json:"official_api_key"`
-	}
-	err := c.BindJSON(&authorizations)
-	if err != nil {
-		c.JSON(400, gin.H{"error": "JSON invalid"})
-	}
-	if authorizations.OpenAI_Email != "" && authorizations.OpenAI_Password != "" {
-		os.Setenv("OPENAI_EMAIL", authorizations.OpenAI_Email)
-		os.Setenv("OPENAI_PASSWORD", authorizations.OpenAI_Password)
-	}
-	if authorizations.Official_API_Key != "" {
-		os.Setenv("OFFICIAL_API_KEY", authorizations.Official_API_Key)
-	}
-	if authorizations.OpenAI_Email == "" && authorizations.OpenAI_Password == "" && authorizations.Official_API_Key == "" {
-		c.JSON(400, gin.H{"error": "JSON invalid"})
-		return
-	}
-	c.String(200, "OpenAI credentials updated")
-}
-
 func passwordHandler(c *gin.Context) {
 	// Get the password from the request (json) and update the password
 	type password_struct struct {
@@ -50,22 +26,6 @@ func passwordHandler(c *gin.Context) {
 	// Set environment variable
 	os.Setenv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 	c.String(200, "password updated")
-}
-
-func puidHandler(c *gin.Context) {
-	// Get the password from the request (json) and update the password
-	type puid_struct struct {
-		PUID string `json:"puid"`
-	}
-	var puid puid_struct
-	err := c.BindJSON(&puid)
-	if err != nil {
-		c.String(400, "puid not provided")
-		return
-	}
-	// Set environment variable
-	os.Setenv("PUID", puid.PUID)
-	c.String(200, "puid updated")
 }
 
 func tokensHandler(c *gin.Context) {
@@ -165,15 +125,4 @@ func nightmare(c *gin.Context) {
 		c.String(200, "data: [DONE]\n\n")
 	}
 
-}
-
-func engines_handler(c *gin.Context) {
-	resp, status, err := chatgpt.GETengines()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error": "error sending request",
-		})
-		return
-	}
-	c.JSON(status, resp)
 }

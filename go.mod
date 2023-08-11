@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/acheong08/endless v0.0.0-20230615162514-90545c7793fd
-	github.com/acheong08/funcaptcha v1.9.3-0.20230803133445-f4d081d60ac7
 	github.com/bogdanfinn/fhttp v0.5.23
 	github.com/bogdanfinn/tls-client v1.5.0
 	github.com/gin-gonic/gin v1.9.1
@@ -13,6 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.14.4
 	github.com/xqdoo00o/OpenAIAuth v0.0.0-20230808015341-5c4a9572bb47
+	github.com/xqdoo00o/funcaptcha v0.0.0-20230811030408-5bec3680a43d
 	k8s.io/apimachinery v0.27.2
 )
 
@@ -21,7 +21,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/bogdanfinn/utls v1.5.16 // indirect
-	github.com/bytedance/sonic v1.10.0-rc3 // indirect
+	github.com/bytedance/sonic v1.10.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
