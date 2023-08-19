@@ -30,13 +30,14 @@ func passwordHandler(c *gin.Context) {
 
 func tokensHandler(c *gin.Context) {
 	// Get the request_tokens from the request (json) and update the request_tokens
-	var request_tokens []tokens.Secret
+	var request_tokens map[string]tokens.Secret
 	err := c.BindJSON(&request_tokens)
 	if err != nil {
 		c.String(400, "tokens not provided")
 		return
 	}
-	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens, true)
+	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens)
+	ACCESS_TOKENS.Save()
 	c.String(200, "tokens updated")
 }
 func optionsHandler(c *gin.Context) {
@@ -62,7 +63,7 @@ func nightmare(c *gin.Context) {
 	}
 
 	authHeader := c.GetHeader("Authorization")
-	token, puid := ACCESS_TOKENS.GetSecret()
+	token, puid := getSecret()
 	if authHeader != "" {
 		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
 		// Check if customAccessToken starts with sk-

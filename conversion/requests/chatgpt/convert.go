@@ -15,7 +15,7 @@ func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy
 		chatgpt_request.Model = "text-davinci-002-render-sha"
 	}
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
-		token, _, err := arkose.GetOpenAIToken(puid, proxy)
+		token, err := arkose.GetOpenAIToken(puid, proxy)
 		if err == nil {
 			chatgpt_request.ArkoseToken = token
 		} else {

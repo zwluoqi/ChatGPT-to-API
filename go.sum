@@ -43,6 +43,8 @@ github.com/go-resty/resty/v2 v2.7.0 h1:me+K9p3uhSmXtrBZ4k9jcEAfJmuC8IivWHwaLZwPr
 github.com/go-resty/resty/v2 v2.7.0/go.mod h1:9PWDzw47qPphMRFfhsyk0NnSgvluHcljSMVIq3w7q0I=
 github.com/goccy/go-json v0.10.2 h1:CrxCmQqYDkv1z7lO7Wbh2HN93uovUHgrECaO5ZrCXAU=
 github.com/goccy/go-json v0.10.2/go.mod h1:6MelG93GURQebXPDq3khkgXZkazVtN9CRI+MGFi0w8I=
+github.com/golang-jwt/jwt/v5 v5.0.0 h1:1n1XNM9hk7O9mnQoNBGolZvzebBQ7p93ULHRc28XJUE=
+github.com/golang-jwt/jwt/v5 v5.0.0/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
@@ -95,10 +97,10 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.11 h1:BMaWp1Bb6fHwEtbplGBGJ498wD+LKlNSl25MjdZY4dU=
 github.com/ugorji/go/codec v1.2.11/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
-github.com/xqdoo00o/OpenAIAuth v0.0.0-20230808015341-5c4a9572bb47 h1:yKD17QcCqXnDCQNcuodJZTIfJhOTXmxYGmn1H3upYco=
-github.com/xqdoo00o/OpenAIAuth v0.0.0-20230808015341-5c4a9572bb47/go.mod h1:/KO6rr28pEjNR0I6vxUCjaIUICKlmWPwJmax239VOLc=
-github.com/xqdoo00o/funcaptcha v0.0.0-20230811030408-5bec3680a43d h1:zuF6q079YpPTxwFSCpGk25RZ8c3KW57EdrlhbhOU2hg=
-github.com/xqdoo00o/funcaptcha v0.0.0-20230811030408-5bec3680a43d/go.mod h1:j4vwnwBlGmAwsLlWh4WW3uSJdj2dip6yuq+Bmg0Cx7k=
+github.com/xqdoo00o/OpenAIAuth v0.0.0-20230818024108-a4f9e8d35c61 h1:D9NOxK+wzSgQ6JbQcf5UnzaNPdeZCwjStjr3RGnjyrg=
+github.com/xqdoo00o/OpenAIAuth v0.0.0-20230818024108-a4f9e8d35c61/go.mod h1:/KO6rr28pEjNR0I6vxUCjaIUICKlmWPwJmax239VOLc=
+github.com/xqdoo00o/funcaptcha v0.0.0-20230818020037-f86acc3c5f1f h1:N9SgqOSb37b88aJ/nzznl01Tz8jd/zI29/XStTXlzJs=
+github.com/xqdoo00o/funcaptcha v0.0.0-20230818020037-f86acc3c5f1f/go.mod h1:j4vwnwBlGmAwsLlWh4WW3uSJdj2dip6yuq+Bmg0Cx7k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
 golang.org/x/arch v0.4.0 h1:A8WCeEWhLwPBKNbFi5Wv5UTCBx5zzubnXDlMOFAzFMc=

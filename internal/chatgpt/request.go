@@ -16,7 +16,6 @@ import (
 	arkose "github.com/xqdoo00o/funcaptcha"
 
 	chatgpt_response_converter "freechatgpt/conversion/response/chatgpt"
-
 	// chatgpt "freechatgpt/internal/chatgpt"
 
 	official_types "freechatgpt/typings/official"

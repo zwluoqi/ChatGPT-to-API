@@ -8,11 +8,12 @@ require (
 	github.com/bogdanfinn/tls-client v1.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.14.4
-	github.com/xqdoo00o/OpenAIAuth v0.0.0-20230808015341-5c4a9572bb47
-	github.com/xqdoo00o/funcaptcha v0.0.0-20230811030408-5bec3680a43d
+	github.com/xqdoo00o/OpenAIAuth v0.0.0-20230818024108-a4f9e8d35c61
+	github.com/xqdoo00o/funcaptcha v0.0.0-20230818020037-f86acc3c5f1f
 	k8s.io/apimachinery v0.27.2
 )
 
