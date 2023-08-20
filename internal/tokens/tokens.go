@@ -21,10 +21,6 @@ func NewAccessToken(tokens map[string]Secret) AccessToken {
 	}
 }
 
-func (a *AccessToken) Get() map[string]Secret {
-	return a.tokens
-}
-
 func (a *AccessToken) Set(name string, token string, puid string) {
 	a.tokens[name] = Secret{Token: token, PUID: puid}
 }
@@ -32,6 +28,7 @@ func (a *AccessToken) Set(name string, token string, puid string) {
 func (a *AccessToken) Delete(name string) {
 	delete(a.tokens, name)
 }
+
 func (a *AccessToken) Save() bool {
 	file, err := os.OpenFile("access_tokens.json", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {

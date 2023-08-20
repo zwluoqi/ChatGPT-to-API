@@ -45,7 +45,7 @@ func getTokenExpire(tokenstring string) (*jwt.NumericDate, error) {
 	}
 }
 
-func AppendIfMissing(slice []string, i string) []string {
+func AppendIfNone(slice []string, i string) []string {
 	for _, ele := range slice {
 		if ele == i {
 			return slice
@@ -83,7 +83,7 @@ func readAccounts() {
 	}
 }
 
-func newTimeFunc(account Account, token_list *map[string]tokens.Secret, cron bool) func() {
+func newTimeFunc(account Account, token_list map[string]tokens.Secret, cron bool) func() {
 	return func() {
 		updateSingleToken(account, token_list, cron)
 	}
@@ -134,7 +134,7 @@ func scheduleTokenPUID() {
 						}
 					}
 					if toExpire > 0 {
-						validAccounts = AppendIfMissing(validAccounts, account.Email)
+						validAccounts = AppendIfNone(validAccounts, account.Email)
 						f := newTimeFunc(account, nil, true)
 						time.AfterFunc(toExpire, f)
 					} else {
@@ -146,7 +146,7 @@ func scheduleTokenPUID() {
 	}
 }
 
-func updateSingleToken(account Account, token_list *map[string]tokens.Secret, cron bool) {
+func updateSingleToken(account Account, token_list map[string]tokens.Secret, cron bool) {
 	if os.Getenv("CF_PROXY") != "" {
 		// exec warp-cli disconnect and connect
 		exec.Command("warp-cli", "disconnect").Run()
@@ -169,6 +169,7 @@ func updateSingleToken(account Account, token_list *map[string]tokens.Secret, cr
 		err := authenticator.Begin()
 		if err != nil {
 			if token_list == nil {
+				ACCESS_TOKENS.Delete(account.Email)
 				for i, v := range validAccounts {
 					if v == account.Email {
 						validAccounts = append(validAccounts[:i], validAccounts[i+1:]...)
@@ -185,12 +186,12 @@ func updateSingleToken(account Account, token_list *map[string]tokens.Secret, cr
 	access_token := authenticator.GetAccessToken()
 	puid, _ := authenticator.GetPUID()
 	if token_list != nil {
-		(*token_list)[account.Email] = tokens.Secret{Token: access_token, PUID: puid}
+		token_list[account.Email] = tokens.Secret{Token: access_token, PUID: puid}
 	} else {
 		ACCESS_TOKENS.Set(account.Email, access_token, puid)
 		ACCESS_TOKENS.Save()
 	}
-	validAccounts = AppendIfMissing(validAccounts, account.Email)
+	validAccounts = AppendIfNone(validAccounts, account.Email)
 	println("Success!")
 	err = authenticator.SaveCookies()
 	if err != nil {
@@ -207,7 +208,7 @@ func updateToken() {
 	validAccounts = []string{}
 	// Loop through each account
 	for _, account := range accounts {
-		updateSingleToken(account, &token_list, false)
+		updateSingleToken(account, token_list, false)
 	}
 	// Append access token to access_tokens.json
 	ACCESS_TOKENS = tokens.NewAccessToken(token_list)
