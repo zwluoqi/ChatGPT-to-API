@@ -33,7 +33,7 @@ type ChatGPTRequest struct {
 }
 
 func NewChatGPTRequest() ChatGPTRequest {
-	enable_history := os.Getenv("ENABLE_HISTORY") == ""
+	enable_history := os.Getenv("ENABLE_HISTORY") != "false"
 	return ChatGPTRequest{
 		Action:                     "next",
 		ParentMessageID:            uuid.NewString(),

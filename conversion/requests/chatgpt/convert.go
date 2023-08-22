@@ -39,3 +39,12 @@ func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy
 	}
 	return chatgpt_request
 }
+
+func RenewTokenForRequest(request *chatgpt_types.ChatGPTRequest, puid string, proxy string) {
+	token, err := arkose.GetOpenAIToken(puid, proxy)
+	if err == nil {
+		request.ArkoseToken = token
+	} else {
+		fmt.Println("Error getting Arkose token: ", err)
+	}
+}

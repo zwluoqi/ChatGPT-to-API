@@ -100,7 +100,7 @@ func nightmare(c *gin.Context) {
 		var response_part string
 		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
 		full_response += response_part
-		if continue_info == nil {
+		if continue_info == nil || os.Getenv("ENABLE_HISTORY") == "false" {
 			break
 		}
 		println("Continuing conversation")
@@ -108,6 +108,9 @@ func nightmare(c *gin.Context) {
 		translated_request.Action = "continue"
 		translated_request.ConversationID = continue_info.ConversationID
 		translated_request.ParentMessageID = continue_info.ParentID
+		if strings.HasPrefix(original_request.Model, "gpt-4") {
+			chatgpt_request_converter.RenewTokenForRequest(&translated_request, puid, proxy_url)
+		}
 		response, err = chatgpt.POSTconversation(translated_request, token, puid, proxy_url)
 		if err != nil {
 			c.JSON(500, gin.H{
