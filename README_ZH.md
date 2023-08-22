@@ -28,7 +28,7 @@
 
 如果配置PLUS账户并使用GPT-4模型，则需要HAR文件（`chat.openai.com.har`）以完成captcha验证
 
-1. 使用基于chromium的浏览器（Chrome，Edge）或Safari浏览器 登录`https://chat.openai.com/`，然后打开浏览器开发者工具（F12），并切换到网络标签页。
+1. 使用基于chromium的浏览器（Chrome，Edge）登录`https://chat.openai.com/`，然后打开浏览器开发者工具（F12），并切换到网络标签页。
 
 2. 新建聊天并选择GPT-4模型，随意问一个问题，点击网络标签页下的导出HAR按钮，导出文件`chat.openai.com.har`
 

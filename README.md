@@ -31,7 +31,7 @@ Caution! please use unblocked ip for authentication, first login to `https://cha
 
 If you configured a PLUS account and use the GPT-4 model, a HAR file (`chat.openai.com.har`) is required to complete CAPTCHA verification
 
-1. Use a chromium-based browser (Chrome, Edge) or Safari to login to `https://chat.openai.com/`, then open the browser developer tools (F12), and switch to the Network tab.
+1. Use a chromium-based browser (Chrome, Edge) to login to `https://chat.openai.com/`, then open the browser developer tools (F12), and switch to the Network tab.
 
 2. Create a new chat and select the GPT-4 model, ask a question at will, click the Export HAR button under the Network tab, export the file `chat.openai.com.har`
 
