@@ -100,7 +100,7 @@ func nightmare(c *gin.Context) {
 		var response_part string
 		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
 		full_response += response_part
-		if continue_info == nil || os.Getenv("ENABLE_HISTORY") == "false" {
+		if continue_info == nil {
 			break
 		}
 		println("Continuing conversation")
