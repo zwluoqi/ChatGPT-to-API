@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"os"
 	"os/exec"
 	"strconv"
@@ -13,8 +13,6 @@ import (
 	"freechatgpt/internal/tokens"
 
 	"github.com/xqdoo00o/OpenAIAuth/auth"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 var accounts []Account
@@ -28,21 +26,25 @@ type Account struct {
 	Password string `json:"password"`
 }
 
-type Claim struct {
-	jwt.RegisteredClaims
+type TokenExp struct {
+	Exp int64 `json:"exp"`
+	Iat int64 `json:"iat"`
 }
 
-func getTokenExpire(tokenstring string) (*jwt.NumericDate, error) {
-	t, _ := jwt.ParseWithClaims(tokenstring, &Claim{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(""), nil
-	})
-	issue, _ := t.Claims.GetExpirationTime()
-
-	if issue != nil {
-		return issue, nil
-	} else {
-		return nil, errors.New("invalid token")
+func getTokenExpire(tokenstring string) (time.Time, error) {
+	payLoadData := strings.Split(tokenstring, ".")[1]
+	// Decode payload
+	payload, err := base64.StdEncoding.DecodeString(payLoadData)
+	if err != nil {
+		return time.Time{}, err
 	}
+	// Unmarshal payload
+	var tokenExp TokenExp
+	err = json.Unmarshal(payload, &tokenExp)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Unix(tokenExp.Exp, 0), nil
 }
 
 func AppendIfNone(slice []string, i string) []string {
