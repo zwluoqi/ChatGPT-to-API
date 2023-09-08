@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -124,15 +125,39 @@ func scheduleTokenPUID() {
 				if token == "" {
 					updateSingleToken(account, nil, true)
 				} else {
+					var toPUIDExpire time.Duration
+					var puidTime time.Time
 					var toExpire time.Duration
-					nowTime := time.Now()
+					if token_list[account.Email].PUID != "" {
+						re := regexp.MustCompile(`\d{10,}`)
+						puidIat := re.FindString(token_list[account.Email].PUID)
+						if puidIat != "" {
+							puidIatInt, _ := strconv.ParseInt(puidIat, 10, 64)
+							puidTime = time.Unix(puidIatInt, 0)
+							toPUIDExpire = interval - time.Since(puidTime)
+							if toPUIDExpire < 0 {
+								updateSingleToken(account, nil, false)
+							}
+						}
+					}
+				tokenProcess:
+					token, _ = ACCESS_TOKENS.GetSecret(account.Email)
 					expireTime, err := getTokenExpire(token)
+					nowTime := time.Now()
 					if err != nil {
 						toExpire = interval - nowTime.Sub(stat.ModTime())
 					} else {
 						toExpire = expireTime.Sub(nowTime)
 						if toExpire > 0 {
 							toExpire = toExpire % interval
+						}
+					}
+					if toPUIDExpire > 0 {
+						toPUIDExpire = interval - nowTime.Sub(puidTime)
+						if toPUIDExpire < toExpire {
+							updateSingleToken(account, nil, false)
+							toPUIDExpire = 0
+							goto tokenProcess
 						}
 					}
 					if toExpire > 0 {
