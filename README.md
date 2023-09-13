@@ -57,7 +57,6 @@ go build
 ```
 
 ### Environment variables
-  - `PUID` - A cookie found on chat.openai.com for Plus users. This gets around Cloudflare rate limits
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
   - `ENABLE_HISTORY` - Set to true by default
@@ -71,7 +70,26 @@ go build
     ```
   - `access_tokens.json` - A JSON array of access tokens for cycling (Alternatively, send a PATCH request to the [correct endpoint](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md))
     ```
-    [{token:"access_token1", puid:"puid1"}, {token:"access_token2", puid:"puid2"}...]
+    {"account1":{token:"access_token1", puid:"puid1"}, "account2":{token:"access_token2", puid:"puid2"}...}
+    ```
+  - `cookies.json` - A JSON that stores login cookies. If the OpenAI account is logged in with a third party such as Google, you can add a third-party account and any password in `accounts.txt`. Modify this file as follows to use it.
+    ```
+    {
+        "third party username": [
+            {
+                "Name": "__Secure-next-auth.session-token",
+                "Value": "After logging into a third-party account on browser，the value of __Secure-next-auth.session-token in cookies",
+                "Path": "/",
+                "Domain": "",
+                "Expires": "0001-01-01T00:00:00Z",
+                "MaxAge": 0,
+                "Secure": true,
+                "HttpOnly": true,
+                "SameSite": 2,
+                "Unparsed": null
+            }
+        ]
+    }
     ```
 
 ## Admin API docs

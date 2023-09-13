@@ -54,7 +54,6 @@ go build
 ```
 
 ### 环境变量
-  - `PUID` - Plus账户可在`chat.openai.com`的cookies里找到，用于绕过cf的频率限制
   - `SERVER_HOST` - 默认127.0.0.1
   - `SERVER_PORT` - 默认8080
   - `ENABLE_HISTORY` - 默认true，允许网页端历史记录
@@ -69,7 +68,26 @@ go build
     ```
   - `access_tokens.json` - 一个存放Access tokens 和PUID JSON数组的文件 (可使用 PATCH请求更新Access tokens [correct endpoint](https://github.com/xqdoo00o/ChatGPT-to-API/blob/master/docs/admin.md))
     ```
-    [{token:"access_token1", puid:"puid1"}, {token:"access_token2", puid:"puid2"}...]
+    {"邮箱1":{token:"access_token1", puid:"puid1"}, "邮箱2":{token:"access_token2", puid:"puid2"}...}
+    ```
+  - `cookies.json` - 一个存放登录cookies的文件，如果OpenAI账户为谷歌等第三方登录，可在`accounts.txt`添加第三方账户和任意密码，修改此文件如下即可使用
+    ```
+    {
+        "第三方账户名": [
+            {
+                "Name": "__Secure-next-auth.session-token",
+                "Value": "网页登录第三方账户后，cookies中的__Secure-next-auth.session-token值",
+                "Path": "/",
+                "Domain": "",
+                "Expires": "0001-01-01T00:00:00Z",
+                "MaxAge": 0,
+                "Secure": true,
+                "HttpOnly": true,
+                "SameSite": 2,
+                "Unparsed": null
+            }
+        ]
+    }
     ```
 
 ## 用户管理文档
