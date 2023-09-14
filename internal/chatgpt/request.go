@@ -155,6 +155,9 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 				continue
 			}
 			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
+			if response_string == "" {
+				continue
+			}
 			isRole = false
 			if stream {
 				_, err = c.Writer.WriteString(response_string)
