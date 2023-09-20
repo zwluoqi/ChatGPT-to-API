@@ -8,7 +8,6 @@ require (
 	github.com/bogdanfinn/tls-client v1.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.14.4
