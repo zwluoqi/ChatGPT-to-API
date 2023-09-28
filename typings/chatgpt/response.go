@@ -31,12 +31,20 @@ type Author struct {
 
 type Metadata struct {
 	Timestamp     string         `json:"timestamp_"`
+	Citations     []Citation     `json:"citations,omitempty"`
 	MessageType   string         `json:"message_type"`
 	FinishDetails *FinishDetails `json:"finish_details"`
 	ModelSlug     string         `json:"model_slug"`
 	Recipient     string         `json:"recipient"`
 }
-
+type Citation struct {
+	Metadata CitaMeta `json:"metadata"`
+	StartIx  int      `json:"start_ix"`
+	EndIx    int      `json:"end_ix"`
+}
+type CitaMeta struct {
+	URL string `json:"url"`
+}
 type FinishDetails struct {
 	Type string `json:"type"`
 	Stop string `json:"stop"`
