@@ -12,6 +12,7 @@ import (
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
+	"github.com/bogdanfinn/tls-client/profiles"
 	"github.com/gin-gonic/gin"
 	arkose "github.com/xqdoo00o/funcaptcha"
 
@@ -25,7 +26,7 @@ var (
 	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), []tls_client.HttpClientOption{
 		tls_client.WithCookieJar(tls_client.NewCookieJar()),
 		tls_client.WithTimeoutSeconds(600),
-		tls_client.WithClientProfile(tls_client.Okhttp4Android13),
+		tls_client.WithClientProfile(profiles.Okhttp4Android13),
 	}...)
 	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
 )
@@ -59,7 +60,7 @@ func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string,
 		request.Header.Set("Cookie", "_puid="+puid+";")
 	}
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
 	request.Header.Set("Accept", "text/event-stream")
 	if access_token != "" {
 		request.Header.Set("Authorization", "Bearer "+access_token)
@@ -151,7 +152,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.EndTurn != nil {
+			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.Content.ContentType != "text" || original_response.Message.EndTurn != nil {
 				continue
 			}
 			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
