@@ -43,7 +43,8 @@ type Citation struct {
 	EndIx    int      `json:"end_ix"`
 }
 type CitaMeta struct {
-	URL string `json:"url"`
+	URL   string `json:"url"`
+	Title string `json:"title"`
 }
 type FinishDetails struct {
 	Type string `json:"type"`

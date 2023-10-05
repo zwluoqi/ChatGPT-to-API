@@ -11,7 +11,7 @@ func ConvertToString(chatgpt_response *chatgpt_types.ChatGPTResponse, previous_t
 	translated_response := official_types.NewChatCompletionChunk(strings.ReplaceAll(chatgpt_response.Message.Content.Parts[0], *&previous_text.Text, ""))
 	if role {
 		translated_response.Choices[0].Delta.Role = chatgpt_response.Message.Author.Role
-	} else if translated_response.Choices[0].Delta.Content == "" || translated_response.Choices[0].Delta.Content == "【" {
+	} else if translated_response.Choices[0].Delta.Content == "" || (chatgpt_response.Message.Metadata.ModelSlug == "gpt-4-browsing" && translated_response.Choices[0].Delta.Content == "【") {
 		return translated_response.Choices[0].Delta.Content
 	}
 	previous_text.Text = chatgpt_response.Message.Content.Parts[0]

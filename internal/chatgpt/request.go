@@ -157,21 +157,26 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.Content.ContentType != "text" || original_response.Message.EndTurn != nil {
 				continue
 			}
-			if len(original_response.Message.Metadata.Citations) != 0 {
-				r := []rune(original_response.Message.Content.Parts[0])
-				offset := 0
-				if waitSource && string(r[len(r)-1:]) == "】" {
-					waitSource = false
+			if original_response.Message.Metadata.ModelSlug == "gpt-4-browsing" {
+				if len(original_response.Message.Metadata.Citations) != 0 {
+					r := []rune(original_response.Message.Content.Parts[0])
+					if waitSource {
+						if string(r[len(r)-1:]) == "】" {
+							waitSource = false
+						} else {
+							continue
+						}
+					}
+					offset := 0
+					for i, citation := range original_response.Message.Metadata.Citations {
+						rl := len(r)
+						original_response.Message.Content.Parts[0] = string(r[:citation.StartIx+offset]) + "[^" + strconv.Itoa(i+1) + "^](" + citation.Metadata.URL + " \"" + citation.Metadata.Title + "\")" + string(r[citation.EndIx+offset:])
+						r = []rune(original_response.Message.Content.Parts[0])
+						offset += len(r) - rl
+					}
+				} else if waitSource {
+					continue
 				}
-				for i, citation := range original_response.Message.Metadata.Citations {
-					rl := len(r)
-					original_response.Message.Content.Parts[0] = string(r[:citation.StartIx+offset]) + "[^" + strconv.Itoa(i+1) + "^](" + citation.Metadata.URL + ")" + string(r[citation.EndIx+offset:])
-					r = []rune(original_response.Message.Content.Parts[0])
-					offset = len(r) - rl
-				}
-			}
-			if waitSource {
-				continue
 			}
 			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
 			if response_string == "" {
