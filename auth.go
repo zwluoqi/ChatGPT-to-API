@@ -20,7 +20,7 @@ var accounts []Account
 
 var validAccounts []string
 
-const interval = time.Hour * 24 * 7
+const interval = time.Hour * 24
 
 type Account struct {
 	Email    string `json:"username"`
