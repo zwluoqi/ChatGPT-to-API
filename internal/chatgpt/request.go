@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
@@ -29,7 +30,8 @@ var (
 		tls_client.WithTimeoutSeconds(600),
 		tls_client.WithClientProfile(profiles.Okhttp4Android13),
 	}...)
-	API_REVERSE_PROXY = os.Getenv("API_REVERSE_PROXY")
+	API_REVERSE_PROXY   = os.Getenv("API_REVERSE_PROXY")
+	FILES_REVERSE_PROXY = os.Getenv("FILES_REVERSE_PROXY")
 )
 
 func init() {
@@ -107,7 +109,56 @@ type ContinueInfo struct {
 	ParentID       string `json:"parent_id"`
 }
 
-func Handler(c *gin.Context, response *http.Response, token string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, *ContinueInfo) {
+type fileInfo struct {
+	DownloadURL string `json:"download_url"`
+	Status      string `json:"status"`
+}
+
+func GetImageSource(wg *sync.WaitGroup, url string, prompt string, token string, puid string, idx int, imgSource []string) {
+	defer wg.Done()
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return
+	}
+	// Clear cookies
+	if puid != "" {
+		request.Header.Set("Cookie", "_puid="+puid+";")
+	}
+	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
+	request.Header.Set("Accept", "*/*")
+	if token != "" {
+		request.Header.Set("Authorization", "Bearer "+token)
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	defer response.Body.Close()
+	var file_info fileInfo
+	err = json.NewDecoder(response.Body).Decode(&file_info)
+	if err != nil || file_info.Status != "success" {
+		return
+	}
+	// fmt.Println(file_info)
+	// request, err = http.NewRequest(http.MethodGet, file_info.DownloadURL, nil)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// response, err = client.Do(request)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// defer response.Body.Close()
+	// body, err := io.ReadAll(response.Body)
+	// if err != nil {
+	// 	log.Fatalf("Error reading response body: %v", err)
+	// }
+	// encoded := base64.StdEncoding.EncodeToString(body)
+	imgSource[idx] = "[![image](" + file_info.DownloadURL + " \"" + prompt + "\")](" + file_info.DownloadURL + ")"
+}
+func Handler(c *gin.Context, response *http.Response, token string, puid string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, *ContinueInfo) {
 	max_tokens := false
 
 	// Create a bufio.Reader from the response body
@@ -126,6 +177,7 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 	var original_response chatgpt_types.ChatGPTResponse
 	var isRole = true
 	var waitSource = false
+	var imgSource []string
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -142,7 +194,6 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		// Check if line starts with [DONE]
 		if !strings.HasPrefix(line, "[DONE]") {
 			// Parse the line as JSON
-
 			err = json.Unmarshal([]byte(line), &original_response)
 			if err != nil {
 				continue
@@ -151,15 +202,15 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 				c.JSON(500, gin.H{"error": original_response.Error})
 				return "", nil
 			}
-			if original_response.Message.Author.Role != "assistant" || original_response.Message.Content.Parts == nil {
+			if !(original_response.Message.Author.Role == "assistant" || (original_response.Message.Author.Role == "tool" && original_response.Message.Content.ContentType != "text")) || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || original_response.Message.Content.ContentType != "text" || original_response.Message.EndTurn != nil {
+			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || !strings.HasSuffix(original_response.Message.Content.ContentType, "text") || original_response.Message.EndTurn != nil {
 				continue
 			}
 			if original_response.Message.Metadata.ModelSlug == "gpt-4-browsing" {
 				if len(original_response.Message.Metadata.Citations) != 0 {
-					r := []rune(original_response.Message.Content.Parts[0])
+					r := []rune(original_response.Message.Content.Parts[0].(string))
 					if waitSource {
 						if string(r[len(r)-1:]) == "】" {
 							waitSource = false
@@ -171,14 +222,47 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 					for i, citation := range original_response.Message.Metadata.Citations {
 						rl := len(r)
 						original_response.Message.Content.Parts[0] = string(r[:citation.StartIx+offset]) + "[^" + strconv.Itoa(i+1) + "^](" + citation.Metadata.URL + " \"" + citation.Metadata.Title + "\")" + string(r[citation.EndIx+offset:])
-						r = []rune(original_response.Message.Content.Parts[0])
+						r = []rune(original_response.Message.Content.Parts[0].(string))
 						offset += len(r) - rl
 					}
 				} else if waitSource {
 					continue
 				}
 			}
-			response_string := chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
+			response_string := ""
+			if original_response.Message.Metadata.ModelSlug == "gpt-4-dalle" {
+				if original_response.Message.Recipient != "all" {
+					continue
+				}
+				if original_response.Message.Content.ContentType == "multimodal_text" {
+					apiUrl := "https://chat.openai.com/backend-api/files/"
+					if FILES_REVERSE_PROXY != "" {
+						apiUrl = FILES_REVERSE_PROXY
+					}
+					imgSource = make([]string, len(original_response.Message.Content.Parts))
+					var wg sync.WaitGroup
+					for index, part := range original_response.Message.Content.Parts {
+						jsonItem, _ := json.Marshal(part)
+						var dalle_content chatgpt_types.DalleContent
+						err = json.Unmarshal(jsonItem, &dalle_content)
+						if err != nil {
+							continue
+						}
+						url := apiUrl + strings.Split(dalle_content.AssetPointer, "//")[1] + "/download"
+						wg.Add(1)
+						go GetImageSource(&wg, url, dalle_content.Metadata.Dalle.Prompt, token, puid, index, imgSource)
+					}
+					wg.Wait()
+					translated_response := official_types.NewChatCompletionChunk(strings.Join(imgSource, ""))
+					if isRole {
+						translated_response.Choices[0].Delta.Role = original_response.Message.Author.Role
+					}
+					response_string = "data: " + translated_response.String() + "\n\n"
+				}
+			}
+			if response_string == "" {
+				response_string = chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
+			}
 			if response_string == "" {
 				continue
 			}
@@ -211,9 +295,9 @@ func Handler(c *gin.Context, response *http.Response, token string, translated_r
 		}
 	}
 	if !max_tokens {
-		return previous_text.Text, nil
+		return strings.Join(imgSource, "") + previous_text.Text, nil
 	}
-	return previous_text.Text, &ContinueInfo{
+	return strings.Join(imgSource, "") + previous_text.Text, &ContinueInfo{
 		ConversationID: original_response.ConversationID,
 		ParentID:       original_response.Message.ID,
 	}

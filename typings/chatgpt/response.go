@@ -19,8 +19,8 @@ type Message struct {
 }
 
 type Content struct {
-	ContentType string   `json:"content_type"`
-	Parts       []string `json:"parts"`
+	ContentType string        `json:"content_type"`
+	Parts       []interface{} `json:"parts"`
 }
 
 type Author struct {
@@ -35,7 +35,6 @@ type Metadata struct {
 	MessageType   string         `json:"message_type"`
 	FinishDetails *FinishDetails `json:"finish_details"`
 	ModelSlug     string         `json:"model_slug"`
-	Recipient     string         `json:"recipient"`
 }
 type Citation struct {
 	Metadata CitaMeta `json:"metadata"`
@@ -49,4 +48,12 @@ type CitaMeta struct {
 type FinishDetails struct {
 	Type string `json:"type"`
 	Stop string `json:"stop"`
+}
+type DalleContent struct {
+	AssetPointer string `json:"asset_pointer"`
+	Metadata     struct {
+		Dalle struct {
+			Prompt string `json:"prompt"`
+		} `json:"dalle"`
+	} `json:"metadata"`
 }

@@ -98,7 +98,7 @@ func nightmare(c *gin.Context) {
 	for i := 3; i > 0; i-- {
 		var continue_info *chatgpt.ContinueInfo
 		var response_part string
-		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
+		response_part, continue_info = chatgpt.Handler(c, response, token, puid, translated_request, original_request.Stream)
 		full_response += response_part
 		if continue_info == nil {
 			break
