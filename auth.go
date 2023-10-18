@@ -154,7 +154,7 @@ func scheduleTokenPUID() {
 					}
 					if toPUIDExpire > 0 {
 						toPUIDExpire = interval - nowTime.Sub(puidTime)
-						if toExpire-toPUIDExpire > 1e9 {
+						if toExpire-toPUIDExpire > 2e9 {
 							updateSingleToken(account, nil, false)
 							toPUIDExpire = 0
 							goto tokenProcess

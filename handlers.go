@@ -38,6 +38,7 @@ func tokensHandler(c *gin.Context) {
 	}
 	ACCESS_TOKENS = tokens.NewAccessToken(request_tokens)
 	ACCESS_TOKENS.Save()
+	validAccounts = ACCESS_TOKENS.GetKeys()
 	c.String(200, "tokens updated")
 }
 func optionsHandler(c *gin.Context) {

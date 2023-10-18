@@ -25,6 +25,14 @@ func (a *AccessToken) Set(name string, token string, puid string) {
 	a.tokens[name] = Secret{Token: token, PUID: puid}
 }
 
+func (a *AccessToken) GetKeys() []string {
+	keys := []string{}
+	for k := range a.tokens {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func (a *AccessToken) Delete(name string) {
 	delete(a.tokens, name)
 }
