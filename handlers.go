@@ -124,6 +124,9 @@ func nightmare(c *gin.Context) {
 			return
 		}
 	}
+	if c.Writer.Status() != 200 {
+		return
+	}
 	if !original_request.Stream {
 		c.JSON(200, official_types.NewChatCompletion(full_response))
 	} else {

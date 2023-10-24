@@ -138,23 +138,6 @@ func GetImageSource(wg *sync.WaitGroup, url string, prompt string, token string,
 	if err != nil || file_info.Status != "success" {
 		return
 	}
-	// fmt.Println(file_info)
-	// request, err = http.NewRequest(http.MethodGet, file_info.DownloadURL, nil)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// response, err = client.Do(request)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// defer response.Body.Close()
-	// body, err := io.ReadAll(response.Body)
-	// if err != nil {
-	// 	log.Fatalf("Error reading response body: %v", err)
-	// }
-	// encoded := base64.StdEncoding.EncodeToString(body)
 	imgSource[idx] = "[![image](" + file_info.DownloadURL + " \"" + prompt + "\")](" + file_info.DownloadURL + ")"
 }
 func Handler(c *gin.Context, response *http.Response, token string, puid string, translated_request chatgpt_types.ChatGPTRequest, stream bool) (string, *ContinueInfo) {

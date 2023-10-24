@@ -11,16 +11,16 @@ import (
 
 func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy string) chatgpt_types.ChatGPTRequest {
 	chatgpt_request := chatgpt_types.NewChatGPTRequest()
+	token, err := arkose.GetOpenAIToken(puid, proxy)
+	if err == nil {
+		chatgpt_request.ArkoseToken = token
+	} else {
+		fmt.Println("Error getting Arkose token: ", err)
+	}
 	if strings.HasPrefix(api_request.Model, "gpt-3.5") {
 		chatgpt_request.Model = "text-davinci-002-render-sha"
 	}
 	if strings.HasPrefix(api_request.Model, "gpt-4") {
-		token, err := arkose.GetOpenAIToken(puid, proxy)
-		if err == nil {
-			chatgpt_request.ArkoseToken = token
-		} else {
-			fmt.Println("Error getting Arkose token: ", err)
-		}
 		chatgpt_request.Model = api_request.Model
 		// Cover some models like gpt-4-32k
 		if len(api_request.Model) >= 7 && api_request.Model[6] >= 48 && api_request.Model[6] <= 57 {
