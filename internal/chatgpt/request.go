@@ -16,7 +16,6 @@ import (
 	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/bogdanfinn/tls-client/profiles"
 	"github.com/gin-gonic/gin"
-	arkose "github.com/xqdoo00o/funcaptcha"
 
 	chatgpt_response_converter "freechatgpt/conversion/response/chatgpt"
 
@@ -32,10 +31,6 @@ var (
 	API_REVERSE_PROXY   = os.Getenv("API_REVERSE_PROXY")
 	FILES_REVERSE_PROXY = os.Getenv("FILES_REVERSE_PROXY")
 )
-
-func init() {
-	arkose.SetTLSClient(&client)
-}
 
 func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string, puid string, proxy string) (*http.Response, error) {
 	if proxy != "" {
