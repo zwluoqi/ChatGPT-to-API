@@ -24,13 +24,15 @@
 
 注意！ 请使用未封锁的ip登录账号，请先打开浏览器登录`https://chat.openai.com/`以检查ip是否可用
 
-### GPT-4 设置（可选）
+### HAR文件池
 
-如果配置PLUS账户并使用GPT-4模型，则需要HAR文件（`chat.openai.com.har`）以完成captcha验证
+  当前登录账号，使用GPT-4模型以及大部分GPT-3.5模型，均需要配置HAR文件（.har后缀名的文件）以完成captcha验证。
 
-1. 使用基于chromium的浏览器（Chrome，Edge）登录`https://chat.openai.com/`，然后打开浏览器开发者工具（F12），并切换到网络标签页。
+  1. 使用基于chromium的浏览器（Chrome，Edge）打开浏览器开发者工具（F12），并切换到网络标签页，勾选保留日志选项。
 
-2. 新建聊天并选择GPT-4模型，随意问一个问题，点击网络标签页下的导出HAR按钮，导出文件`chat.openai.com.har`
+  2. 登录`https://chat.openai.com/`，新建聊天并选择GPT-4模型，随意输入下文字，切换到GPT-3.5模型，随意输入下文字。
+
+  3. 点击网络标签页下的导出HAR按钮，导出文件`chat.openai.com.har`，放置到本程序同级的`harPool`文件夹里。
 
 ### API 密钥（可选）
 
@@ -56,7 +58,7 @@ go build
 ### 环境变量
   - `SERVER_HOST` - 默认127.0.0.1
   - `SERVER_PORT` - 默认8080
-  - `ENABLE_HISTORY` - 默认true，允许网页端历史记录
+  - `ENABLE_HISTORY` - 默认false，不允许网页端历史记录
 
 ### 可选文件配置
   - `proxies.txt` - 存放代理地址的文件
@@ -70,7 +72,7 @@ go build
     ```
     {"邮箱1":{token:"access_token1", puid:"puid1"}, "邮箱2":{token:"access_token2", puid:"puid2"}...}
     ```
-  - `cookies.json` - 一个存放登录cookies的文件，如果OpenAI账户为谷歌等第三方登录，可在`accounts.txt`添加第三方账户和任意密码，修改此文件如下即可使用
+  - `cookies.json` - 一个存放登录cookies的文件，如果OpenAI账户为谷歌等第三方登录（第一方账号也同样适用），可在`accounts.txt`添加第三方账户和任意密码，修改此文件如下即可使用
     ```
     {
         "第三方账户名": [

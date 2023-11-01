@@ -27,13 +27,15 @@ Auto renew access tokens and PUID after 7 days
 
 Caution! please use unblocked ip for authentication, first login to `https://chat.openai.com/` to check ip availability if you can.
 
-### GPT-4 Model (Optional)
+### HAR file pool
 
-If you configured a PLUS account and use the GPT-4 model, a HAR file (`chat.openai.com.har`) is required to complete CAPTCHA verification
+Currently logged in account, using the GPT-4 model and most GPT-3.5 models, you need to configure a HAR file (file with .har suffix) to complete captcha verification.
 
-1. Use a chromium-based browser (Chrome, Edge) to login to `https://chat.openai.com/`, then open the browser developer tools (F12), and switch to the Network tab.
+  1. Use a chromium-based browser (Chrome, Edge) to open the browser developer tools (F12), switch to the Network tab, and check the preserve log option.
 
-2. Create a new chat and select the GPT-4 model, ask a question at will, click the Export HAR button under the Network tab, export the file `chat.openai.com.har`
+  2. Log in to `https://chat.openai.com/`, create a new chat and select the GPT-4 model, enter any text, switch to the GPT-3.5 model, and enter any text.
+
+  3. Click the Export HAR button under the Network tab to export the file `chat.openai.com.har` and place it in the `harPool` folder of the same level as this program.
 
 ### API Authentication (Optional)
 
@@ -59,7 +61,7 @@ go build
 ### Environment variables
   - `SERVER_HOST` - Set to 127.0.0.1 by default
   - `SERVER_PORT` - Set to 8080 by default
-  - `ENABLE_HISTORY` - Set to true by default
+  - `ENABLE_HISTORY` - Set to false by default
 
 ### Files (Optional)
   - `proxies.txt` - A list of proxies separated by new line
@@ -72,7 +74,7 @@ go build
     ```
     {"account1":{token:"access_token1", puid:"puid1"}, "account2":{token:"access_token2", puid:"puid2"}...}
     ```
-  - `cookies.json` - A JSON that stores login cookies. If the OpenAI account is logged in with a third party such as Google, you can add a third-party account and any password in `accounts.txt`. Modify this file as follows to use it.
+  - `cookies.json` - A JSON that stores login cookies. If the OpenAI account is logged in with a third party such as Google, you can add a third-party account (also suitable for first-party account) and any password in `accounts.txt`. Modify this file as follows to use it.
     ```
     {
         "third party username": [

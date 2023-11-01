@@ -50,11 +50,10 @@ go build
 ```
 
 ### 環境変数
-  - `PUID` - chat.openai.com の Plus ユーザー向けのクッキーです。これは Cloudflare のレート制限を回避します
   - `SERVER_HOST` - デフォルトで 127.0.0.1 に設定
   - `SERVER_PORT` - デフォルトで 8080 に設定
   - `OPENAI_EMAIL` と `OPENAI_PASSWORD` - PUID が設定されている場合、自動的に更新されます
-  - `ENABLE_HISTORY` - デフォルトで true に設定
+  - `ENABLE_HISTORY` - デフォルトで false に設定
 
 ### ファイル（オプション）
   - `proxies.txt` - 改行で区切られたプロキシのリスト
