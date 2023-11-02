@@ -79,5 +79,6 @@ func main() {
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", Authorization, nightmare)
+	router.GET("/v1/models", Authorization, simulateModel)
 	endless.ListenAndServe(HOST+":"+PORT, router)
 }

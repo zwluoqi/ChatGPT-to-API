@@ -50,6 +50,26 @@ func optionsHandler(c *gin.Context) {
 		"message": "pong",
 	})
 }
+
+func simulateModel(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"object": "list",
+		"data": []gin.H{
+			{
+				"id":       "gpt-3.5-turbo",
+				"object":   "model",
+				"created":  1688888888,
+				"owned_by": "chatgpt-to-api",
+			},
+			{
+				"id":       "gpt-4",
+				"object":   "model",
+				"created":  1688888888,
+				"owned_by": "chatgpt-to-api",
+			},
+		},
+	})
+}
 func nightmare(c *gin.Context) {
 	var original_request official_types.APIRequest
 	err := c.BindJSON(&original_request)
