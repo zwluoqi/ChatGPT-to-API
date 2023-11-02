@@ -31,7 +31,7 @@ Caution! please use unblocked ip for authentication, first login to `https://cha
 
 Currently logged in account, using the GPT-4 model and most GPT-3.5 models, you need to configure a HAR file (file with .har suffix) to complete captcha verification.
 
-  1. Use a chromium-based browser (Chrome, Edge) to open the browser developer tools (F12), switch to the Network tab, and check the preserve log option.
+  1. Use a chromium-based browser (Chrome, Edge) to open the browser developer tools (F12), switch to the Network tab, and check the **preserve log** option.
 
   2. Log in to `https://chat.openai.com/`, create a new chat and select the GPT-4 model, enter any text, switch to the GPT-3.5 model, and enter any text.
 
@@ -74,7 +74,7 @@ go build
     ```
     {"account1":{token:"access_token1", puid:"puid1"}, "account2":{token:"access_token2", puid:"puid2"}...}
     ```
-  - `cookies.json` - A JSON that stores login cookies. If the OpenAI account is logged in with a third party such as Google, you can add a third-party account (also suitable for first-party account) and any password in `accounts.txt`. Modify this file as follows to use it.
+  - `cookies.json` - A JSON that stores login cookies. If the OpenAI account is logged in with a third party such as Google, you can add a third-party account (also suitable for first-party account) and any password in `accounts.txt`. Modify this file as follows to login account.
     ```
     {
         "third party username": [
