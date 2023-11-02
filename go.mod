@@ -12,7 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.14.4
 	github.com/xqdoo00o/OpenAIAuth v0.0.0-20230928031215-356afd0d7a6b
-	github.com/xqdoo00o/funcaptcha v0.0.0-20231030092246-861a61b162a5
+	github.com/xqdoo00o/funcaptcha v0.0.0-20231102065333-e7431d84b356
 	k8s.io/apimachinery v0.27.2
 )
 
