@@ -182,8 +182,15 @@ func Handler(c *gin.Context, response *http.Response, token string, puid string,
 			if !(original_response.Message.Author.Role == "assistant" || (original_response.Message.Author.Role == "tool" && original_response.Message.Content.ContentType != "text")) || original_response.Message.Content.Parts == nil {
 				continue
 			}
-			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || !strings.HasSuffix(original_response.Message.Content.ContentType, "text") || original_response.Message.EndTurn != nil {
+			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || !strings.HasSuffix(original_response.Message.Content.ContentType, "text") {
 				continue
+			}
+			if original_response.Message.EndTurn != nil {
+				if waitSource {
+					waitSource = false
+				} else {
+					continue
+				}
 			}
 			if len(original_response.Message.Metadata.Citations) != 0 {
 				r := []rune(original_response.Message.Content.Parts[0].(string))
