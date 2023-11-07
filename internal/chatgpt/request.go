@@ -185,57 +185,53 @@ func Handler(c *gin.Context, response *http.Response, token string, puid string,
 			if original_response.Message.Metadata.MessageType != "next" && original_response.Message.Metadata.MessageType != "continue" || !strings.HasSuffix(original_response.Message.Content.ContentType, "text") || original_response.Message.EndTurn != nil {
 				continue
 			}
-			if original_response.Message.Metadata.ModelSlug == "gpt-4-browsing" {
-				if len(original_response.Message.Metadata.Citations) != 0 {
-					r := []rune(original_response.Message.Content.Parts[0].(string))
-					if waitSource {
-						if string(r[len(r)-1:]) == "】" {
-							waitSource = false
-						} else {
-							continue
-						}
+			if len(original_response.Message.Metadata.Citations) != 0 {
+				r := []rune(original_response.Message.Content.Parts[0].(string))
+				if waitSource {
+					if string(r[len(r)-1:]) == "】" {
+						waitSource = false
+					} else {
+						continue
 					}
-					offset := 0
-					for i, citation := range original_response.Message.Metadata.Citations {
-						rl := len(r)
-						original_response.Message.Content.Parts[0] = string(r[:citation.StartIx+offset]) + "[^" + strconv.Itoa(i+1) + "^](" + citation.Metadata.URL + " \"" + citation.Metadata.Title + "\")" + string(r[citation.EndIx+offset:])
-						r = []rune(original_response.Message.Content.Parts[0].(string))
-						offset += len(r) - rl
-					}
-				} else if waitSource {
-					continue
 				}
+				offset := 0
+				for i, citation := range original_response.Message.Metadata.Citations {
+					rl := len(r)
+					original_response.Message.Content.Parts[0] = string(r[:citation.StartIx+offset]) + "[^" + strconv.Itoa(i+1) + "^](" + citation.Metadata.URL + " \"" + citation.Metadata.Title + "\")" + string(r[citation.EndIx+offset:])
+					r = []rune(original_response.Message.Content.Parts[0].(string))
+					offset += len(r) - rl
+				}
+			} else if waitSource {
+				continue
 			}
 			response_string := ""
-			if original_response.Message.Metadata.ModelSlug == "gpt-4-dalle" {
-				if original_response.Message.Recipient != "all" {
-					continue
+			if original_response.Message.Recipient != "all" {
+				continue
+			}
+			if original_response.Message.Content.ContentType == "multimodal_text" {
+				apiUrl := "https://chat.openai.com/backend-api/files/"
+				if FILES_REVERSE_PROXY != "" {
+					apiUrl = FILES_REVERSE_PROXY
 				}
-				if original_response.Message.Content.ContentType == "multimodal_text" {
-					apiUrl := "https://chat.openai.com/backend-api/files/"
-					if FILES_REVERSE_PROXY != "" {
-						apiUrl = FILES_REVERSE_PROXY
+				imgSource = make([]string, len(original_response.Message.Content.Parts))
+				var wg sync.WaitGroup
+				for index, part := range original_response.Message.Content.Parts {
+					jsonItem, _ := json.Marshal(part)
+					var dalle_content chatgpt_types.DalleContent
+					err = json.Unmarshal(jsonItem, &dalle_content)
+					if err != nil {
+						continue
 					}
-					imgSource = make([]string, len(original_response.Message.Content.Parts))
-					var wg sync.WaitGroup
-					for index, part := range original_response.Message.Content.Parts {
-						jsonItem, _ := json.Marshal(part)
-						var dalle_content chatgpt_types.DalleContent
-						err = json.Unmarshal(jsonItem, &dalle_content)
-						if err != nil {
-							continue
-						}
-						url := apiUrl + strings.Split(dalle_content.AssetPointer, "//")[1] + "/download"
-						wg.Add(1)
-						go GetImageSource(&wg, url, dalle_content.Metadata.Dalle.Prompt, token, puid, index, imgSource)
-					}
-					wg.Wait()
-					translated_response := official_types.NewChatCompletionChunk(strings.Join(imgSource, ""))
-					if isRole {
-						translated_response.Choices[0].Delta.Role = original_response.Message.Author.Role
-					}
-					response_string = "data: " + translated_response.String() + "\n\n"
+					url := apiUrl + strings.Split(dalle_content.AssetPointer, "//")[1] + "/download"
+					wg.Add(1)
+					go GetImageSource(&wg, url, dalle_content.Metadata.Dalle.Prompt, token, puid, index, imgSource)
 				}
+				wg.Wait()
+				translated_response := official_types.NewChatCompletionChunk(strings.Join(imgSource, ""))
+				if isRole {
+					translated_response.Choices[0].Delta.Role = original_response.Message.Author.Role
+				}
+				response_string = "data: " + translated_response.String() + "\n\n"
 			}
 			if response_string == "" {
 				response_string = chatgpt_response_converter.ConvertToString(&original_response, &previous_text, isRole)
