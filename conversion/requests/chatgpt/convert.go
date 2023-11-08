@@ -22,12 +22,12 @@ func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy
 		if len(api_request.Model) >= 7 && api_request.Model[6] >= 48 && api_request.Model[6] <= 57 {
 			chatgpt_request.Model = "gpt-4"
 		}
-	}
-	token, err := arkose.GetOpenAIToken(api_version, puid, proxy)
-	if err == nil {
-		chatgpt_request.ArkoseToken = token
-	} else {
-		fmt.Println("Error getting Arkose token: ", err)
+		token, err := arkose.GetOpenAIToken(api_version, puid, proxy)
+		if err == nil {
+			chatgpt_request.ArkoseToken = token
+		} else {
+			fmt.Println("Error getting Arkose token: ", err)
+		}
 	}
 	if api_request.PluginIDs != nil {
 		chatgpt_request.PluginIDs = api_request.PluginIDs
