@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.14.4
-	github.com/xqdoo00o/OpenAIAuth v0.0.0-20230928031215-356afd0d7a6b
+	github.com/xqdoo00o/OpenAIAuth v0.0.0-20231123154104-bd007b6ae95d
 	github.com/xqdoo00o/funcaptcha v0.0.0-20231116083157-e2a60817e1e4
 	k8s.io/apimachinery v0.27.2
 )
