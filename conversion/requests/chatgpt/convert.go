@@ -33,6 +33,7 @@ func ConvertAPIRequest(api_request official_types.APIRequest, puid string, proxy
 		chatgpt_request.PluginIDs = api_request.PluginIDs
 		chatgpt_request.Model = "gpt-4-plugins"
 	}
+	fmt.Println("chatgpt_request.Model:", chatgpt_request.Model)
 	for _, api_message := range api_request.Messages {
 		if api_message.Role == "system" {
 			api_message.Role = "critic"

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	chatgpt_request_converter "freechatgpt/conversion/requests/chatgpt"
 	chatgpt "freechatgpt/internal/chatgpt"
 	"freechatgpt/internal/tokens"
@@ -101,8 +102,26 @@ func nightmare(c *gin.Context) {
 		proxies = append(proxies[1:], proxies[0])
 	}
 
+	responseConvs, err := chatgpt.GetConversations(0, 28, token, puid)
+	if responseConvs != nil {
+		// Determine the length of the array
+		length := len(responseConvs)
+		// Loop through the array, stopping before the last 5 elements
+		for i := length - 1; i > 5; i-- {
+			ele := responseConvs[i]
+			del_response, del_err := chatgpt.DeleteConversation(ele.ID, token, puid, proxy_url)
+			fmt.Println("delete response.StatusCode", del_response.StatusCode)
+			if err != nil {
+				fmt.Println(del_err)
+				return
+			}
+			defer del_response.Body.Close()
+		}
+	}
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request, puid, proxy_url)
+	fmt.Println("ConversationID", translated_request.ConversationID)
+	fmt.Println("ParentMessageID", translated_request.ParentMessageID)
 
 	response, err := chatgpt.POSTconversation(translated_request, token, puid, proxy_url)
 	if err != nil {
@@ -153,4 +172,12 @@ func nightmare(c *gin.Context) {
 		c.String(200, "data: [DONE]\n\n")
 	}
 
+	// fmt.Println("ConversationID", ConversationID)
+	// del_response, del_err := chatgpt.DeleteConversation(ConversationID, token, proxy_url)
+	// fmt.Println("response.StatusCode", del_response.StatusCode)
+	// if err != nil {
+	// 	fmt.Println(del_err)
+	// 	return
+	// }
+	// defer del_response.Body.Close()
 }

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"freechatgpt/typings"
 	chatgpt_types "freechatgpt/typings/chatgpt"
 	"io"
@@ -11,11 +12,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/bogdanfinn/tls-client/profiles"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 
 	chatgpt_response_converter "freechatgpt/conversion/response/chatgpt"
 
@@ -31,6 +34,131 @@ var (
 	API_REVERSE_PROXY   = os.Getenv("API_REVERSE_PROXY")
 	FILES_REVERSE_PROXY = os.Getenv("FILES_REVERSE_PROXY")
 )
+
+// ConversationItem represents a single conversation item, structured according to your data.
+type ConversationItem struct {
+	ID                     string      `json:"id"`
+	Title                  string      `json:"title"`
+	CreateTime             time.Time   `json:"create_time"`
+	UpdateTime             time.Time   `json:"update_time"`
+	Mapping                interface{} `json:"mapping"`                  // null or other type, use interface{} for flexibility
+	CurrentNode            interface{} `json:"current_node"`             // null or other type, use interface{} for flexibility
+	ConversationTemplateID interface{} `json:"conversation_template_id"` // null or other type, use interface{} for flexibility
+	GizmoID                interface{} `json:"gizmo_id"`                 // null or other type, use interface{} for flexibility
+	IsArchived             bool        `json:"is_archived"`
+	WorkspaceID            interface{} `json:"workspace_id"` // null or other type, use interface{} for flexibility
+}
+
+// getConversations fetches a list of conversations with the given offset and limit.
+func GetConversations(offset int, limit int, accessToken string, puid string) ([]ConversationItem, error) {
+	// if proxy != "" {
+	//   client.SetProxy(proxy)
+	// }
+
+	baseURL := "https://chat.openai.com/backend-api"
+	if API_REVERSE_PROXY != "" {
+		baseURL = API_REVERSE_PROXY
+	}
+	fmt.Println("GetConversations")
+
+	// Construct the request URL with query parameters.
+	url := fmt.Sprintf("%s/conversations?offset=%d&limit=%d&order=updated", baseURL, offset, limit)
+
+	// Create a new GET request.
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	// Clear cookies
+	if puid != "" {
+		request.Header.Set("Cookie", "_puid="+puid+";")
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
+	request.Header.Add("Accept", "*/*")
+	if accessToken != "" {
+		request.Header.Set("Authorization", "Bearer "+accessToken)
+	}
+
+	// Perform the request.
+	response, err := client.Do(request)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	// Read and parse the response body.
+	bodyBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	// Convert body data to a string and print it.
+	// bodyString := string(bodyBytes)
+	// fmt.Println(bodyString)
+	var data struct {
+		Items []ConversationItem `json:"items"`
+	}
+	err = json.Unmarshal(bodyBytes, &data)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return data.Items, nil
+}
+
+// deleteConversation deletes a conversation with the given ID.
+func DeleteConversation(convoID string, access_token string, puid string, proxy string) (*http.Response, error) {
+	fmt.Println("delete start")
+	if proxy != "" {
+		client.SetProxy(proxy)
+	}
+	fmt.Println("DeleteConversation", convoID)
+
+	baseURL := "https://chat.openai.com/backend-api"
+	if API_REVERSE_PROXY != "" {
+		baseURL = API_REVERSE_PROXY
+	}
+
+	// Construct the request URL.
+	url := baseURL + "/conversation/" + convoID
+
+	// Define the request body.
+	body := map[string]bool{"is_visible": false}
+	bodyJSON, err := json.Marshal(body)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	// Create a new PATCH request.
+	request, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(bodyJSON))
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	// Clear cookies
+	if puid != "" {
+		request.Header.Set("Cookie", "_puid="+puid+";")
+	}
+	// Set the necessary headers.
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
+	request.Header.Add("Accept", "*/*")
+	// r.Header.Add("Host", "claude.ai")
+	// r.Header.Add("Connection", "keep-alive")
+	if access_token != "" {
+		request.Header.Set("Authorization", "Bearer "+access_token)
+	}
+	fmt.Println("delete end")
+	// Perform the request.
+	response, err := client.Do(request)
+	fmt.Println("delete do")
+	return response, err
+}
 
 func POSTconversation(message chatgpt_types.ChatGPTRequest, access_token string, puid string, proxy string) (*http.Response, error) {
 	if proxy != "" {
