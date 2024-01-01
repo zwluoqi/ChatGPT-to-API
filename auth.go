@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -57,7 +58,25 @@ func AppendIfNone(slice []string, i string) []string {
 	return append(slice, i)
 }
 
-func getSecret() (string, string) {
+func getSecret(model string) (string, string) {
+	if !strings.HasPrefix(model, "gpt-3.5") {
+		var index = 0
+		for _, account := range validAccounts {
+			token, puid := ACCESS_TOKENS.GetSecret(account)
+			if puid != "" {
+				// 先记录当前账户，然后从validAccounts中移除
+				currentAccount := validAccounts[index]
+				validAccounts = append(validAccounts[:index], validAccounts[index+1:]...)
+				validAccounts = append(validAccounts, currentAccount) // 将当前账户移动到最后
+
+				// 这里假设你想打印长度和索引作为调试信息
+				fmt.Println("validAccounts 长度:", len(validAccounts), "当前索引:", index, "token", token)
+				return token, puid
+			}
+			index++
+		}
+	}
+
 	account := validAccounts[0]
 	validAccounts = append(validAccounts[1:], account)
 	return ACCESS_TOKENS.GetSecret(account)

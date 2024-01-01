@@ -1,15 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	chatgpt_request_converter "freechatgpt/conversion/requests/chatgpt"
 	chatgpt "freechatgpt/internal/chatgpt"
 	"freechatgpt/internal/tokens"
+	"freechatgpt/moderation"
 	official_types "freechatgpt/typings/official"
+	"github.com/gin-gonic/gin"
 	"os"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 func passwordHandler(c *gin.Context) {
@@ -84,8 +85,41 @@ func nightmare(c *gin.Context) {
 		return
 	}
 
+	if !strings.HasPrefix(original_request.Model, "gpt-3.5") {
+		completionMessages := original_request.Messages
+		textMarshal, err := json.Marshal(completionMessages)
+		if err != nil {
+			fmt.Println("Text marshal err:", err)
+		}
+		message := string(textMarshal)
+		moderationresponse, err := moderation.PostModerationData(message)
+		if err != nil {
+			fmt.Println("Error:", err)
+			c.JSON(444, gin.H{"error": gin.H{
+				"message": err,
+				"type":    "invalid_request_error",
+				"param":   nil,
+				"code":    444,
+			}})
+			return
+		}
+		if moderationresponse.Results[0].Flagged {
+			textMarshal, err := json.Marshal(moderationresponse.Results)
+			if err != nil {
+				fmt.Println("Text marshal err:", err)
+			}
+			c.JSON(444, gin.H{"error": gin.H{
+				"message": "消息没有通过moderation审核:\n" + string(textMarshal),
+				"type":    "invalid_request_error",
+				"param":   nil,
+				"code":    444,
+			}})
+			return
+		}
+	}
+
 	authHeader := c.GetHeader("Authorization")
-	token, puid := getSecret()
+	token, puid := getSecret(original_request.Model)
 	if authHeader != "" {
 		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
 		// Check if customAccessToken starts with sk-
@@ -93,6 +127,8 @@ func nightmare(c *gin.Context) {
 			token = customAccessToken
 		}
 	}
+	// fmt.Println("token:", token, "puid:", puid)
+
 	var proxy_url string
 	if len(proxies) == 0 {
 		proxy_url = ""
@@ -102,22 +138,24 @@ func nightmare(c *gin.Context) {
 		proxies = append(proxies[1:], proxies[0])
 	}
 
-	responseConvs, err := chatgpt.GetConversations(0, 28, token, puid)
-	if responseConvs != nil {
-		// Determine the length of the array
-		length := len(responseConvs)
-		// Loop through the array, stopping before the last 5 elements
-		for i := length - 1; i > 5; i-- {
-			ele := responseConvs[i]
-			del_response, del_err := chatgpt.DeleteConversation(ele.ID, token, puid, proxy_url)
-			fmt.Println("delete response.StatusCode", del_response.StatusCode)
-			if err != nil {
-				fmt.Println(del_err)
-				return
-			}
-			defer del_response.Body.Close()
-		}
-	}
+	//不要删除了，删了好像也没用
+	// responseConvs, err := chatgpt.GetConversations(0, 28, token, puid)
+	// if responseConvs != nil {
+	// 	// Determine the length of the array
+	// 	length := len(responseConvs)
+	// 	// Loop through the array, stopping before the last 5 elements
+	// 	for i := length - 1; i > 5; i-- {
+	// 		ele := responseConvs[i]
+	// 		del_response, del_err := chatgpt.DeleteConversation(ele.ID, token, puid, proxy_url)
+	// 		fmt.Println("delete response.StatusCode", del_response.StatusCode)
+	// 		if err != nil {
+	// 			fmt.Println(del_err)
+	// 			return
+	// 		}
+	// 		defer del_response.Body.Close()
+	// 	}
+	// }
+
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request, puid, proxy_url)
 	fmt.Println("ConversationID", translated_request.ConversationID)
