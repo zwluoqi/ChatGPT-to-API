@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // ModerationData represents the data structure for the API request.
@@ -33,9 +34,9 @@ type ModerationResponse struct {
 // PostModerationData sends a POST request to the OpenAI Moderation API and processes the response.
 func PostModerationData(message string) (*ModerationResponse, error) {
 	url := "https://api.openai.com/v1/moderations"
-
+	apikey := os.Getenv("OPENAI_APIKEY")
 	headers := map[string]string{
-		"Authorization": "Bearer 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",
+		"Authorization": "Bearer " + apikey,
 		"Content-Type":  "application/json",
 	}
 
