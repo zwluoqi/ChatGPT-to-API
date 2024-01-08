@@ -34,7 +34,15 @@ type TokenExp struct {
 }
 
 func getTokenExpire(tokenstring string) (time.Time, error) {
-	payLoadData := strings.Split(tokenstring, ".")[1]
+	fmt.Println(tokenstring)
+
+	payloads := strings.Split(tokenstring, ".")
+	if len(payloads) < 1 {
+		return time.Time{}, fmt.Errorf("token small")
+	}
+
+	payLoadData := payloads[1]
+
 	// Decode payload
 	payload, err := base64.StdEncoding.DecodeString(payLoadData)
 	if err != nil {
