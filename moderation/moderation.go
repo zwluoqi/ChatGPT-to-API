@@ -5,7 +5,8 @@ package moderation
 import (
 	"bytes"
 	"encoding/json"
-	// "fmt"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -22,6 +23,10 @@ type ModerationResponse struct {
 		Categories struct {
 			Sexual bool `json:"sexual"`
 		} `json:"categories"`
+		CategoryScores struct {
+			Sexual   float32 `json:"sexual"`
+			Violence float32 `json:"violence"`
+		} `json:"category_scores"`
 	} `json:"results"`
 }
 
@@ -30,7 +35,7 @@ func PostModerationData(message string) (*ModerationResponse, error) {
 	url := "https://api.openai.com/v1/moderations"
 
 	headers := map[string]string{
-		"Authorization": "Bearer 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",
+		"Authorization": "Bearer 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",
 		"Content-Type":  "application/json",
 	}
 
@@ -63,6 +68,11 @@ func PostModerationData(message string) (*ModerationResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New(fmt.Sprintf("错误: %s, %s", resp.Status, string(body)))
+	}
+
 	// fmt.Println("PostModerationData Result\n", string(body))
 	var response ModerationResponse
 	err = json.Unmarshal(body, &response)
@@ -71,10 +81,13 @@ func PostModerationData(message string) (*ModerationResponse, error) {
 	}
 
 	// Process the response
-	// for _, result := range response.Results {
-	// 	fmt.Printf("Flagged: %t\n", result.Flagged)
-	// 	fmt.Printf("Sexual Content Detected: %t\n", result.Categories.Sexual)
-	// }
+	for _, result := range response.Results {
+		fmt.Printf("Flagged: %t\n", result.Flagged)
+		fmt.Printf("Sexual Content Detected: %t\n", result.Categories.Sexual)
+		fmt.Printf("Sexual CategorySexual Detected: %f\n", result.CategoryScores.Sexual)
+		fmt.Printf("Sexual CategoryViolence Detected: %f\n", result.CategoryScores.Violence)
+		// fmt.Println("PostModerationData Result\n", string(body))
+	}
 
 	return &response, nil
 }

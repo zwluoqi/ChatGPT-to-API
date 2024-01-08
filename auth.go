@@ -59,27 +59,27 @@ func AppendIfNone(slice []string, i string) []string {
 }
 
 func getSecret(model string) (string, string) {
-	if !strings.HasPrefix(model, "gpt-3.5") {
-		var index = 0
-		for _, account := range validAccounts {
-			token, puid := ACCESS_TOKENS.GetSecret(account)
-			if puid != "" {
-				// 先记录当前账户，然后从validAccounts中移除
-				currentAccount := validAccounts[index]
-				validAccounts = append(validAccounts[:index], validAccounts[index+1:]...)
-				validAccounts = append(validAccounts, currentAccount) // 将当前账户移动到最后
+	var index = 0
+	for _, account := range validAccounts {
+		token, puid := ACCESS_TOKENS.GetSecret(account)
+		if (puid != "" && strings.HasPrefix(model, "gpt-4")) || (puid == "" && strings.HasPrefix(model, "gpt-3.5")) {
+			// 先记录当前账户，然后从validAccounts中移除
+			currentAccount := validAccounts[index]
+			validAccounts = append(validAccounts[:index], validAccounts[index+1:]...)
+			validAccounts = append(validAccounts, currentAccount) // 将当前账户移动到最后
 
-				// 这里假设你想打印长度和索引作为调试信息
-				fmt.Println("validAccounts 长度:", len(validAccounts), "当前索引:", index, "token", token)
-				return token, puid
-			}
-			index++
+			// 这里假设你想打印长度和索引作为调试信息
+			fmt.Println("validAccounts 长度:", len(validAccounts), "当前索引:", index, "account", currentAccount)
+			return token, puid
 		}
+		index++
 	}
 
-	account := validAccounts[0]
-	validAccounts = append(validAccounts[1:], account)
-	return ACCESS_TOKENS.GetSecret(account)
+	// account := validAccounts[0]
+	// validAccounts = append(validAccounts[1:], account)
+	// token, puid := ACCESS_TOKENS.GetSecret(account)
+	// fmt.Println("account", account)
+	return "", ""
 }
 
 // Read accounts.txt and create a list of accounts
@@ -107,6 +107,7 @@ func readAccounts() {
 
 func newTimeFunc(account Account, token_list map[string]tokens.Secret, cron bool) func() {
 	return func() {
+		fmt.Println("update newTimeFunc")
 		updateSingleToken(account, token_list, cron)
 	}
 }
@@ -142,6 +143,7 @@ func scheduleTokenPUID() {
 			for _, account := range accounts {
 				token := token_list[account.Email].Token
 				if token == "" {
+					fmt.Println("update token empty")
 					updateSingleToken(account, nil, true)
 				} else {
 					var toPUIDExpire time.Duration
@@ -155,6 +157,7 @@ func scheduleTokenPUID() {
 							puidTime = time.Unix(puidIatInt, 0)
 							toPUIDExpire = interval - time.Since(puidTime)
 							if toPUIDExpire < 0 {
+								fmt.Println("update puid toPUIDExpire")
 								updateSingleToken(account, nil, false)
 							}
 						}
@@ -174,6 +177,7 @@ func scheduleTokenPUID() {
 					if toPUIDExpire > 0 {
 						toPUIDExpire = interval - nowTime.Sub(puidTime)
 						if toExpire-toPUIDExpire > 2e9 {
+							fmt.Println("update puid toExpire-toPUIDExpire")
 							updateSingleToken(account, nil, false)
 							toPUIDExpire = 0
 							goto tokenProcess
@@ -184,6 +188,7 @@ func scheduleTokenPUID() {
 						f := newTimeFunc(account, nil, true)
 						time.AfterFunc(toExpire, f)
 					} else {
+						fmt.Println("update puid toExpire == 0", toExpire)
 						updateSingleToken(account, nil, true)
 					}
 				}
@@ -253,7 +258,9 @@ func updateToken() {
 	token_list := map[string]tokens.Secret{}
 	validAccounts = []string{}
 	// Loop through each account
+	// 暂时不要
 	for _, account := range accounts {
+		fmt.Println("update account:", account)
 		updateSingleToken(account, token_list, false)
 	}
 	// Append access token to access_tokens.json

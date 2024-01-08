@@ -59,7 +59,7 @@ func GetConversations(offset int, limit int, accessToken string, puid string) ([
 	if API_REVERSE_PROXY != "" {
 		baseURL = API_REVERSE_PROXY
 	}
-	fmt.Println("GetConversations")
+	// fmt.Println("GetConversations")
 
 	// Construct the request URL with query parameters.
 	url := fmt.Sprintf("%s/conversations?offset=%d&limit=%d&order=updated", baseURL, offset, limit)
