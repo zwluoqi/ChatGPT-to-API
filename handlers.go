@@ -99,7 +99,7 @@ func nightmare(c *gin.Context) {
 		if err != nil {
 			fmt.Println("Error:", err)
 		} else {
-			if moderationresponse.Results[0].Categories.Sexual {
+			if moderationresponse.Results[0].CategoryScores.Sexual > 0.8 {
 				textMarshal, err := json.Marshal(moderationresponse.Results)
 				if err != nil {
 					fmt.Println("Text marshal err:", err)
@@ -130,15 +130,16 @@ func nightmare(c *gin.Context) {
 	fmt.Println("request35Count:", request35Count, "request40Count:", request40Count)
 
 	var proxy_url string
-	if len(proxies) == 0 {
-		proxy_url = ""
-	} else {
-		proxy_url = proxies[0]
-		// Push used proxy to the back of the list
-		proxies = append(proxies[1:], proxies[0])
-	}
+	// if len(proxies) == 0 {
+	// 	proxy_url = ""
+	// } else {
+	// 	proxy_url = proxies[0]
+	// 	// Push used proxy to the back of the list
+	// 	proxies = append(proxies[1:], proxies[0])
+	// }
 
 	//不要删除了，删了好像也没用
+	fmt.Println("pre delete")
 	responseConvs, err := chatgpt.GetConversations(0, 28, token, puid)
 	if responseConvs != nil {
 		// Determine the length of the array
@@ -155,12 +156,13 @@ func nightmare(c *gin.Context) {
 			defer del_response.Body.Close()
 		}
 	}
-
+	fmt.Println("post delete")
 	// Convert the chat request to a ChatGPT request
 	translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request, puid, proxy_url)
 	// fmt.Println("ConversationID", translated_request.ConversationID)
 	// fmt.Println("ParentMessageID", translated_request.ParentMessageID)
 
+	fmt.Println("post POSTconversation")
 	response, err := chatgpt.POSTconversation(translated_request, token, puid, proxy_url)
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -168,10 +170,13 @@ func nightmare(c *gin.Context) {
 		})
 		return
 	}
+
 	defer response.Body.Close()
 	if chatgpt.Handle_request_error(c, response) {
 		return
 	}
+	fmt.Println("post POSTconversation")
+
 	var full_response string
 	for i := 3; i > 0; i-- {
 		var continue_info *chatgpt.ContinueInfo

@@ -34,10 +34,11 @@ type TokenExp struct {
 }
 
 func getTokenExpire(tokenstring string) (time.Time, error) {
-	fmt.Println(tokenstring)
+	// fmt.Println(tokenstring)
 
 	payloads := strings.Split(tokenstring, ".")
-	if len(payloads) < 1 {
+	if len(payloads) < 2 {
+		fmt.Println("token error:", tokenstring)
 		return time.Time{}, fmt.Errorf("token small")
 	}
 
@@ -68,26 +69,28 @@ func AppendIfNone(slice []string, i string) []string {
 
 func getSecret(model string) (string, string) {
 	var index = 0
-	for _, account := range validAccounts {
-		token, puid := ACCESS_TOKENS.GetSecret(account)
-		if (puid != "" && strings.HasPrefix(model, "gpt-4")) || (puid == "" && strings.HasPrefix(model, "gpt-3.5")) {
-			// 先记录当前账户，然后从validAccounts中移除
-			currentAccount := validAccounts[index]
-			validAccounts = append(validAccounts[:index], validAccounts[index+1:]...)
-			validAccounts = append(validAccounts, currentAccount) // 将当前账户移动到最后
+	if strings.HasPrefix(model, "gpt-4") {
+		for _, account := range validAccounts {
+			token, puid := ACCESS_TOKENS.GetSecret(account)
+			if puid != "" {
+				// 先记录当前账户，然后从validAccounts中移除
+				currentAccount := validAccounts[index]
+				validAccounts = append(validAccounts[:index], validAccounts[index+1:]...)
+				validAccounts = append(validAccounts, currentAccount) // 将当前账户移动到最后
 
-			// 这里假设你想打印长度和索引作为调试信息
-			fmt.Println("validAccounts 长度:", len(validAccounts), "当前索引:", index, "account", currentAccount)
-			return token, puid
+				// 这里假设你想打印长度和索引作为调试信息
+				fmt.Println("gpt-4 长度:", len(validAccounts), "当前索引:", index, "account", currentAccount)
+				return token, puid
+			}
+			index++
 		}
-		index++
 	}
 
-	// account := validAccounts[0]
-	// validAccounts = append(validAccounts[1:], account)
-	// token, puid := ACCESS_TOKENS.GetSecret(account)
-	// fmt.Println("account", account)
-	return "", ""
+	account := validAccounts[0]
+	validAccounts = append(validAccounts[1:], account)
+	token, puid := ACCESS_TOKENS.GetSecret(account)
+	fmt.Println("gpt-3.5 获取", account)
+	return token, puid
 }
 
 // Read accounts.txt and create a list of accounts
@@ -149,6 +152,7 @@ func scheduleTokenPUID() {
 			ACCESS_TOKENS = tokens.NewAccessToken(token_list)
 			validAccounts = []string{}
 			for _, account := range accounts {
+				fmt.Println(account.Email)
 				token := token_list[account.Email].Token
 				if token == "" {
 					fmt.Println("update token empty")
@@ -212,7 +216,6 @@ func updateSingleToken(account Account, token_list map[string]tokens.Secret, cro
 		exec.Command("warp-cli", "connect").Run()
 		time.Sleep(5 * time.Second)
 	}
-	println("Updating access token for " + account.Email)
 	var proxy_url string
 	if len(proxies) == 0 {
 		proxy_url = ""
@@ -221,6 +224,7 @@ func updateSingleToken(account Account, token_list map[string]tokens.Secret, cro
 		// Push used proxy to the back of the list
 		proxies = append(proxies[1:], proxies[0])
 	}
+	println("Updating access token for "+account.Email, proxy_url)
 	authenticator := auth.NewAuthenticator(account.Email, account.Password, proxy_url)
 	err := authenticator.RenewWithCookies()
 	if err != nil {
@@ -242,8 +246,11 @@ func updateSingleToken(account Account, token_list map[string]tokens.Secret, cro
 			return
 		}
 	}
+	println("GetAccessToken!")
 	access_token := authenticator.GetAccessToken()
-	puid, _ := authenticator.GetPUID()
+	println("GetPUID!")
+	puid, err := authenticator.GetPUID()
+	fmt.Println("puid", puid, err)
 	if token_list != nil {
 		token_list[account.Email] = tokens.Secret{Token: access_token, PUID: puid}
 	} else {

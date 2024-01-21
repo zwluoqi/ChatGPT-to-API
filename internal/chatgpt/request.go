@@ -206,6 +206,7 @@ func Handle_request_error(c *gin.Context, response *http.Response) bool {
 		if err != nil {
 			// Read response body
 			body, _ := io.ReadAll(response.Body)
+			fmt.Println("Handle_request_error internal_server_error", string(body))
 			c.JSON(500, gin.H{"error": gin.H{
 				"message": "Unknown error",
 				"type":    "internal_server_error",
@@ -215,6 +216,7 @@ func Handle_request_error(c *gin.Context, response *http.Response) bool {
 			}})
 			return true
 		}
+		fmt.Println("Handle_request_error detail ", error_response["detail"])
 		c.JSON(response.StatusCode, gin.H{"error": gin.H{
 			"message": error_response["detail"],
 			"type":    response.Status,
